@@ -14,6 +14,18 @@ class Variable:
         self.creator = None
         self.generation = 0
     
+    def __len__(self):
+        return len(self.data)
+    
+    def __repr__(self):
+        if self.data is None:
+            return 'variable(None)'
+        p = str(self.data).replace('\n', '\n' + ' '*9)
+        return 'variable(' + p +')'
+    
+    def __mul__(self, other):
+        return mul(self, other)
+    
     def set_creator(self, func):
         self.creator = func
         self.generation = func.generation + 1
@@ -53,9 +65,26 @@ class Variable:
             if not retain_grad:# when no retain grad, set 0 to variable grad
                 for y in f.outputs:
                     y().grad = None
+
         
     def cleargrad(self):
         self.grad = None
+    
+    @property
+    def shape(self):
+        return self.data.shape
+    
+    @property
+    def ndim(self):
+        return self.data.ndim
+    
+    @property
+    def size(self):
+        return self.data.size
+
+    @property
+    def dtype(self):
+        return self.data.dtype
 
 
 class Function:
@@ -85,6 +114,16 @@ class Function:
 
     def backward(self, gy):
         raise NotImplementedError()
+
+class Mul(Function):
+    def forward(self, x0, x1):
+        y = x0 * x1
+        return y
+    
+    def backward(self, gy):
+        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        return gy * x1, gy * x0
+
 
 class Config:
     enable_backprop = True
@@ -125,6 +164,9 @@ class Square(Function):
 def add(x0, x1):
     return Add()(x0, x1)
 
+def mul(x0, x1):
+    return Mul()(x0, x1)
+
 @contextlib.contextmanager
 def config_test():
     print('start') # 前処理
@@ -145,31 +187,21 @@ def using_config(name, value):
 def no_grad():
     return using_config('enable_backprop', False)
 
+Variable.__add__ = add
+Variable.__mul__ = mul
 
+a = Variable(np.array(3.0))
+b = Variable(np.array(2.0))
+c = Variable(np.array(1.0))
 
-x0 = Variable(np.array(1.0))
-x1 = Variable(np.array(1.0))
-t = add(x0, x1)
-y = add(x0, t)
+#y = add(mul(a, b), c)
+y = a * b + c
 y.backward()
+print(y)
+print(a.grad)
+print(b.grad)
 
-print(y.grad, t.grad)
-print(x0.grad, x1.grad)
-
-Config.enable_backprop = True
-a = Variable(np.ones((100, 100, 100)))
-b = square(square(square(a)))
-b.backward()
-
-Config.enable_backprop = False
-a = Variable(np.ones((100, 100, 1000)))
-b = square(square(square(a)))
-
-with config_test():
-    print('proccess...')
-
-with no_grad():
-    x = Variable(np.array(2.0))
-    y = square(x)
-
-
+a = Variable(np.array(3.0))
+b = Variable(np.array(2.0))
+y = a * b
+print(y)

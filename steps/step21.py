@@ -4,6 +4,8 @@ import contextlib
 
 
 class Variable:
+    __array_priority__ = 200
+
     def __init__(self, data):
         if data is not None:
             if not isinstance(data, np.ndarray):
@@ -13,6 +15,18 @@ class Variable:
         self.grad = None
         self.creator = None
         self.generation = 0
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __repr__(self):
+        if self.data is None:
+            return 'variable(None)'
+        p = str(self.data).replace('\n', '\n' + ' '*9)
+        return 'variable(' + p +')'
+    
+    def __mul__(self, other):
+        return mul(self, other)
     
     def set_creator(self, func):
         self.creator = func
@@ -53,13 +67,32 @@ class Variable:
             if not retain_grad:# when no retain grad, set 0 to variable grad
                 for y in f.outputs:
                     y().grad = None
+
         
     def cleargrad(self):
         self.grad = None
+    
+    @property
+    def shape(self):
+        return self.data.shape
+    
+    @property
+    def ndim(self):
+        return self.data.ndim
+    
+    @property
+    def size(self):
+        return self.data.size
+
+    @property
+    def dtype(self):
+        return self.data.dtype
 
 
 class Function:
     def __call__(self, *inputs):#1. アスタリスクを付ける
+        inputs =  [as_variable(x) for x in inputs]
+
         xs = [x.data for x in inputs]
         ys = self.forward(*xs)#2. asterik argument unpacking
         #this is unpacking. output is a tuple
@@ -86,6 +119,16 @@ class Function:
     def backward(self, gy):
         raise NotImplementedError()
 
+class Mul(Function):
+    def forward(self, x0, x1):
+        y = x0 * x1
+        return y
+    
+    def backward(self, gy):
+        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        return gy * x1, gy * x0
+
+
 class Config:
     enable_backprop = True
 
@@ -94,6 +137,13 @@ def as_array(x):
     if np.isscalar(x):
         return np.array(x)
     return x
+
+
+def as_variable(obj):
+    if isinstance(obj, Variable):
+        return obj
+    return Variable(obj)
+
 
 def square(x):
     return Square()(x)
@@ -123,7 +173,12 @@ class Square(Function):
 
 
 def add(x0, x1):
+    x1 = as_array(x1)
     return Add()(x0, x1)
+
+def mul(x0, x1):
+    x1 = as_array(x1)
+    return Mul()(x0, x1)
 
 @contextlib.contextmanager
 def config_test():
@@ -145,31 +200,26 @@ def using_config(name, value):
 def no_grad():
     return using_config('enable_backprop', False)
 
+Variable.__add__ = add
+Variable.__radd__ = add
+Variable.__mul__ = mul
+Variable.__rmul__ = mul
 
+x = Variable(np.array(2.0))
+y = x + np.array(3.0)
+print(y)
+y = x + 2
+print(y)
+y = x + 2.0
+print(y)
+y = 2 + x
+print(y)
+y = 2.0 + x
+print(y)
+x = Variable(np.array(2.0))
+y = 3.0 * x + 1.0
+print(y)
 
-x0 = Variable(np.array(1.0))
-x1 = Variable(np.array(1.0))
-t = add(x0, x1)
-y = add(x0, t)
-y.backward()
-
-print(y.grad, t.grad)
-print(x0.grad, x1.grad)
-
-Config.enable_backprop = True
-a = Variable(np.ones((100, 100, 100)))
-b = square(square(square(a)))
-b.backward()
-
-Config.enable_backprop = False
-a = Variable(np.ones((100, 100, 1000)))
-b = square(square(square(a)))
-
-with config_test():
-    print('proccess...')
-
-with no_grad():
-    x = Variable(np.array(2.0))
-    y = square(x)
-
-
+x = Variable(np.array([1.0]))
+y = np.array([2.0]) + x
+print(y)

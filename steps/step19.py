@@ -14,6 +14,15 @@ class Variable:
         self.creator = None
         self.generation = 0
     
+    def __len__(self):
+        return len(self.data)
+    
+    def __repr__(self):
+        if self.data is None:
+            return 'variable(None)'
+        p = str(self.data).replace('\n', '\n' + ' '*9)
+        return 'variable(' + p +')'
+    
     def set_creator(self, func):
         self.creator = func
         self.generation = func.generation + 1
@@ -56,6 +65,22 @@ class Variable:
         
     def cleargrad(self):
         self.grad = None
+    
+    @property
+    def shape(self):
+        return self.data.shape
+    
+    @property
+    def ndim(self):
+        return self.data.ndim
+    
+    @property
+    def size(self):
+        return self.data.size
+
+    @property
+    def dtype(self):
+        return self.data.dtype
 
 
 class Function:
@@ -146,30 +171,16 @@ def no_grad():
     return using_config('enable_backprop', False)
 
 
+x = Variable(np.array([[1, 2, 3], [4, 5, 6]]))
+print(x.shape)
+print(x.dtype)
+print(len(x))
 
-x0 = Variable(np.array(1.0))
-x1 = Variable(np.array(1.0))
-t = add(x0, x1)
-y = add(x0, t)
-y.backward()
+x = Variable(np.array([1, 2, 3]))
+print(x)
 
-print(y.grad, t.grad)
-print(x0.grad, x1.grad)
+x = Variable(None)
+print(x)
 
-Config.enable_backprop = True
-a = Variable(np.ones((100, 100, 100)))
-b = square(square(square(a)))
-b.backward()
-
-Config.enable_backprop = False
-a = Variable(np.ones((100, 100, 1000)))
-b = square(square(square(a)))
-
-with config_test():
-    print('proccess...')
-
-with no_grad():
-    x = Variable(np.array(2.0))
-    y = square(x)
-
-
+x = Variable(np.array([[1, 2, 3], [4, 5, 6]]))
+print(x)
