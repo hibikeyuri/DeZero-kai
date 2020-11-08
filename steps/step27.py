@@ -22,12 +22,13 @@ class Sin(Function):
 def sin(x):
     return Sin()(x)
 
-def my_sin(x, threshold=1e-150):
+def my_sin(x, threshold=0.0001):
     y = 0
     for i in range(100000):
         c = (-1) ** i / math.factorial(2 * i + 1)
         t = c * x ** (2 * i + 1)
         y = y + t
+        print(i)
         if abs(t.data) < threshold:
             break
     return y
@@ -47,4 +48,5 @@ y.name = 'y'
 x.name = 'x'
 print(y.data)
 print(x.grad)
-plot_dot_graph(y, verbose=False, to_file='taylor_sin_th=1e-150.png')
+#plot_dot_graph(y, verbose=False, to_file='taylor_sin_th=0.0001,png')
+#plot_dot_graph(y, verbose=False, to_file='taylor_sin_th=1e-150.png')

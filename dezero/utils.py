@@ -9,7 +9,7 @@ def _dot_var(v, verbose=False):
     if verbose and v.data is not None:
         if v.name is not None:
             name += ': '
-            name += str(v.shape) + ' ' + str(v.dtype)
+        name += str(v.shape) + ' ' + str(v.dtype)
     return dot_var.format(id(v), name)
 
 
@@ -37,6 +37,7 @@ def get_dot_graph(output, verbose=True):
             seen_set.add(f)
     
     add_func(output.creator)
+    txt += _dot_var(output, verbose)
 
     while funcs:
         func = funcs.pop()
