@@ -1,6 +1,7 @@
 import weakref
 import numpy as np
 import contextlib
+import dezero
 
 
 # =============================================================================
@@ -62,6 +63,14 @@ class Variable:
     def __mul__(self, other):
         return mul(self, other)
     
+    def reshape(self, *shape):
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]
+        return dezero.functions.reshape(self, shape)
+
+    def transpose(self):
+        return dezero.functions.transpose(self)
+    
     def set_creator(self, func):
         self.creator = func
         self.generation = func.generation + 1
@@ -122,6 +131,10 @@ class Variable:
     @property
     def dtype(self):
         return self.data.dtype
+    
+    @property
+    def T(self):
+        return dezero.functions.transpose(self)
         
 
 def as_array(x):

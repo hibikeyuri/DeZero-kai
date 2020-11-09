@@ -36,7 +36,7 @@ class Variable:
         self.creator = func
         self.generation = func.generation + 1
     
-    def backward(self, retain_grad=False): # when a varaible do not retain the grad, set 0 to varible.grad
+    def backward(self, retain_grad=False, create_graph=False): # when a varaible do not retain the grad, set 0 to varible.grad
         if self.grad is None:
             self.grad = np.ones_like(self.data)
 
