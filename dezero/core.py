@@ -71,6 +71,9 @@ class Variable:
     def transpose(self):
         return dezero.functions.transpose(self)
     
+    def sum(self, axis=None, keepdims=False):
+        return dezero.functions.sum(self, axis, keepdims)
+    
     def set_creator(self, func):
         self.creator = func
         self.generation = func.generation + 1
@@ -185,11 +188,18 @@ class Function:
 # =============================================================================
 class Add(Function):
     def forward(self, x0, x1):
+        self.x0_shape, self.x1_shape = x0.shape, x1.shape
+        #this add function use the feature of the numpy add
+        #it can automatically broadcast one array to the others
         y = x0 + x1
         return y
     
     def backward(self, gy):
-        return gy, gy
+        gx0, gx1 = gy, gy
+        if self.x0_shape != self.x1_shape:
+            gx0 = dezero.functions.sum_to(gx0, self.x0_shape)
+            gx1 = dezero.functions.sum_to(gx1, self.x1_shape)
+        return gx0, gx1
 
 
 class Neg(Function):
@@ -230,6 +240,9 @@ class Div(Function):
         x0, x1 = self.inputs
         gx0 = gy / x1
         gx1 = gy * (-x0 / x1 ** 2)
+        if x0.shape != x1.shape:  # for broadcast
+            gx0 = dezero.functions.sum_to(gx0, x0.shape)
+            gx1 = dezero.functions.sum_to(gx1, x1.shape)
         return gx0, gx1
 
 
@@ -302,6 +315,10 @@ def pow(x, c):
     return Pow(c)(x)
 
 
+class Parameter(Variable):
+    pass
+
+
 def setup_variable():
     Variable.__add__ = add
     Variable.__radd__ = add
@@ -310,6 +327,9 @@ def setup_variable():
     Variable.__neg__ = neg
     Variable.__sub__ = sub
     Variable.__rsub__ = rsub
-    Variable.__div__ = div
-    Variable.__rdiv__ = rdiv
+    #Variable.__div__ = div
+    #Variable.__rdiv__ = rdiv
+    Variable.__truediv__ = div
+    Variable.__rtruediv__ = rdiv
     Variable.__pow__ = pow
+    Variable.__getitem__ = dezero.functions.get_item
