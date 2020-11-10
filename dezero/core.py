@@ -212,11 +212,18 @@ class Neg(Function):
 
 class Sub(Function):
     def forward(self, x0, x1):
+        self.x0_shape, self.x1_shape = x0.shape, x1.shape
         y = x0 - x1
         return y
     
     def backward(self, gy):
-        return gy, -gy
+        x0, x1 = self.inputs
+        gx0 = gy
+        gx1 = -gy
+        if self.x0.shape != self.x1.shape: # for broadcast
+            gx0 = dezero.functions.sum_to(gx0, self.x0_shape)
+            gx1 = dezero.functions.sum_to(gx1, self.x1_shape)
+        return gx0, gx1
 
 
 class Mul(Function):
@@ -227,7 +234,13 @@ class Mul(Function):
     def backward(self, gy):
         #x0, x1 = self.inputs[0].data, self.inputs[1].data
         x0, x1 = self.inputs# gy and x1 are Variable instance
-        return gy * x1, gy * x0# when using * overload operator, it calls Function.__call__()
+        gx0 = gy * x1
+        gx1 = gy * x0
+        if x0.shape != x1.shape: # for broadcast
+            gx0 = dezero.functions.sum_to(gx0, x0.shape)
+            gx1 = dezero.functions.sum_to(gx1, x1.shape)
+
+        return gx0, gx1# when using * overload operator, it calls Function.__call__()
 
 
 class Div(Function):

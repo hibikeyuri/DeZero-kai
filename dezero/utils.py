@@ -100,13 +100,14 @@ def reshape_sum_backward(gy, x_shape, axis, keepdims):
     Returns:
         dezero.Variable: Gradient variable which is reshaped appropriately
     """
-    ndim = len(x_shape)
+    ndim = len(x_shape) # to record data dimension. if x_shape = (1, 2), then len is 2
     tupled_axis = axis
     if axis is None:
         tupled_axis = None
     elif not isinstance(axis, tuple):
         tupled_axis = (axis,)
 
+    #consider three condition: ndim!=0 / axis settings / keepdims
     if not (ndim == 0 or tupled_axis is None or keepdims):
         actual_axis = [a if a >= 0 else a + ndim for a in tupled_axis]
         shape = list(gy.shape)
