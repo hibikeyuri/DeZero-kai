@@ -53,4 +53,4 @@ class MomentumSGD(Optimizer):
         v = self.vs[v_key]
         v *= self.momentum
         v -= self.lr * param.grad.data
-        param.data += v
+        param.data += vcc
