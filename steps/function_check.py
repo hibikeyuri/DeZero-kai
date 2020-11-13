@@ -29,6 +29,8 @@ def reshape_sum_backward(gy, x_shape, axis, keepdims):
         shape = list(gy.shape)
         print('after list gy shape ', shape)
         for a in sorted(actual_axis):
+            #let 1 number to add position a
+            #ex: [1] -> (0, 1) -> [1, 1] 
             shape.insert(a, 1)
         
     else:
@@ -46,3 +48,6 @@ x_shape = (2, 3)
 gy = reshape_sum_backward(gy, x_shape, 0, keepdims=False)
 print(gy.shape)
 
+test = [2, 3]
+test.insert(2, 1)
+print(test)
