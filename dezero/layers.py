@@ -9,7 +9,7 @@ class Layer:
     def __init__(self):
         self._params = set()
     
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value): #for multiple layers and Parameters
         if isinstance(value, (Parameter, Layer)):
             self._params.add(name)
         super().__setattr__(name, value)
@@ -30,7 +30,7 @@ class Layer:
             obj = self.__dict__[name]
         
             if isinstance(obj, Layer):
-                yield from obj.params()
+                yield from obj.params() #just take out paramters from layers
             else:
                 yield obj
 

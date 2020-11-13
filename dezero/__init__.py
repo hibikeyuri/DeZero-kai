@@ -17,16 +17,15 @@ else:
     from dezero.core import as_array
     from dezero.core import as_variable
     from dezero.core import setup_variable
-    from dezero.layers import Layer
-    from dezero.models import Model
+    from dezero.layers import Layer # Basic Layer to restore Parameters and multiple Layers
+    from dezero.models import Model # inherit the Layers, it can contain the model which you want to make 
 
 
-    import dezero.optimizers
     import dezero.functions
     import dezero.layers
-    import dezero.utils
-    import dezero.datasets
     import dezero.models
+    import dezero.optimizers
+    import dezero.datasets
     import dezero.utils
 
 setup_variable()

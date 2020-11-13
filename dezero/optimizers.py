@@ -8,7 +8,7 @@ class Optimizer:
 
     def setup(self, target):
         self.target = target
-        return self
+        return self #return self object
 
     def update(self):
         # None以外のパラメータをリストにまとめる
@@ -24,7 +24,7 @@ class Optimizer:
     def update_one(self, param):
         raise NotImplementedError()
     
-    def add_hook(self, f):
+    def add_hook(self, f): # you can see the example for example/mnist.py
         self.hooks.append(f)
 
 
