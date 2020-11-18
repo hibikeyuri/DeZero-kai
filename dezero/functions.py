@@ -121,7 +121,7 @@ class GetItem(Function):
         self.slices = slices
 
     def forward(self, x):
-        y = x[self.slices]
+        y = x[self.slices] # x is ndaaray instance, you can use [] subscript operator
         return y
 
     def backward(self, gy):
