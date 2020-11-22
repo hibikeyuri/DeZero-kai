@@ -346,3 +346,7 @@ def setup_variable():
     Variable.__rtruediv__ = rdiv
     Variable.__pow__ = pow
     Variable.__getitem__ = dezero.functions.get_item
+
+
+#You got a dream, you gotta protect it. People can't do something themselves, they wanna
+#tell you can't do it. If you want something, go get it. Period.
