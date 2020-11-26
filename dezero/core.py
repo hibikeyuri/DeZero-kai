@@ -352,3 +352,5 @@ def setup_variable():
 #tell you can't do it. If you want something, go get it. Period.
 
 # I'M FUCKING TIRED
+
+# I want to make a lot of moeny!
