@@ -80,3 +80,14 @@ class SinCurve(Dataset):
         self.label = y[1:][:, np.newaxis]
 
 
+# =============================================================================
+# Big Data
+# =============================================================================
+class BigData(Dataset):
+    def __getitem__(index):
+        x = np.load('data/{}.npy'.format(index))
+        t = np.load('label/{}.npy'.format(index))
+        return x, t
+    
+    def __len__():
+        return 1000000
