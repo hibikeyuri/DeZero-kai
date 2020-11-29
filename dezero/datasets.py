@@ -91,3 +91,5 @@ class BigData(Dataset):
     
     def __len__():
         return 1000000
+
+#lazy to code!
