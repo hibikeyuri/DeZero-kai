@@ -296,3 +296,6 @@ def setup_variable():
     Variable.__div__ = div
     Variable.__rdiv__ = rdiv
     Variable.__pow__ = pow
+
+
+#gogo let's go!
