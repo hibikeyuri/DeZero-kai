@@ -51,3 +51,5 @@ print(gy.shape)
 test = [2, 3]
 test.insert(2, 1)
 print(test)
+
+just lazy! HaHa!
